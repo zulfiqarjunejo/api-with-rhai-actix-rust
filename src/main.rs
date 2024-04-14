@@ -1,3 +1,5 @@
+use std::env;
+
 use actix_web::{self, get, web::Path, App, HttpServer, Responder};
 
 use rhai::Engine;
@@ -28,8 +30,13 @@ async fn add(path: Path<(i64, i64)>) -> impl Responder {
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
+    let port = match env::var("PORT") {
+        Ok(val) => val.parse().expect("port should be a number"),
+        Err(_) => 9090,
+    };
+
     HttpServer::new(|| App::new().service(multiply).service(add))
-        .bind(("127.0.0.1", 9090))
+        .bind(("127.0.0.1", port))
         .unwrap()
         .run()
         .await
